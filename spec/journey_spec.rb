@@ -49,14 +49,14 @@ describe Journey do
     card.top_up(10)
     card.touch_in(bank)
     card.touch_out(kilburn)
-    expect(journey.calculate_fare).to eq(Oystercard::MINIMUM_FARE)
+    expect(card.journey.calculate_fare).to eq(Oystercard::MINIMUM_FARE)
   end
 
   it "calculates the penalty fare when no touch out" do
     card.top_up(10)
     card.touch_in(kilburn)
     # card.touch_out(nil)
-    expect(journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
+    expect(card.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
   end
 
 
