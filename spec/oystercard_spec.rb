@@ -6,6 +6,9 @@ describe Oystercard do
   let(:exit_station) {double(:station)}
   let(:journey) {double(:journey)}
 
+  bank = Station.new("Bank")
+  angel = Station.new("Angel")
+
   describe "initialization" do
     it "has a balance of 0 by default" do
       expect(oystercard.balance).to eq(0)
@@ -35,13 +38,13 @@ describe Oystercard do
   describe "using card" do
     before :each do
       top_up
-      oystercard.touch_in(euston)
+      oystercard.touch_in(bank)
     end
 
-    describe "reports history" do
+    describe "history" do
       it "shows that history saves entry and exit stations" do
-        oystercard.touch_out(exit_station)
-        expect(oystercard.history).to include({euston => exit_station})
+        oystercard.touch_out(angel)
+        expect(oystercard.history).to eq([[bank, angel]])
       end
     end
 
@@ -58,6 +61,8 @@ describe Oystercard do
       #   expect(oystercard).to_not be_in_journey
       # end
 
+
+
       it "deducts minimum fare" do
         expect{oystercard.touch_out(exit_station)}.to change{ oystercard.balance }.by -Oystercard::MINIMUM_FARE
       end
@@ -70,6 +75,26 @@ describe Oystercard do
         expect{oystercard.touch_in(euston)}.to raise_error "Insufficient balance"
       end
     end
+
+    describe "no touch out" do
+      it "calculates the penalty fare when no touch out" do
+        oystercard.top_up(10)
+        oystercard.touch_in(bank)
+        expect(oystercard.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
+      end
+    end
+
+    describe "no touch in" do
+
+      it "calculates the penalty fare when no touch in" do
+        card = Oystercard.new
+        card.top_up(10)
+        card.touch_out(bank)
+        expect(card.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
+      end
+    end
+
+
 end
 
 def top_up

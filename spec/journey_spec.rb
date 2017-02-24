@@ -4,12 +4,13 @@ require 'oystercard'
 
 describe Journey do
   let(:shoreditch) {double(:station)}
-  let(:angel) {double(:station)}
-  let(:oyster) {double(:oystercard)}
-  subject(:journey) {described_class.new(shoreditch)}
+  # let(:angel) {double(:station)}
+  # let(:oyster) {double(:oystercard, :touch_in(station), :touch_out(station))}
+  subject(:journey) {described_class.new}
   bank = Station.new('Bank')
-  kilburn = Station.new('Kilburn')
+  angel = Station.new('Angel')
   card = Oystercard.new
+
 
   describe 'initialization' do
 
@@ -19,53 +20,53 @@ describe Journey do
   end
 
   it "records journey as complete when ending a journey" do
+    journey.start_journey(bank)
     journey.end_journey(angel)
     expect(journey.complete?).to eq true
   end
 
+describe "touching in and out" do
 
-  it 'saves the entry station on touch_in', :entry => true do
-    expect(journey.entry_station).to eq shoreditch
-  end
-
-  it "remembers the entry station" do
-  #  allow(oyster).to receive(:touch_in).with(bank)
-  #  allow(oyster).to receive(:top_up).with 5
-    card.top_up(5)
-    card.touch_in(bank)
-    expect(card.journey.entry_station).to eq(bank)
-  end
-
-  it "remembers the exit station" do
-  #  allow(oyster).to receive(:touch_in).with(bank)
-  #  allow(oyster).to receive(:top_up).with 5
-    card.top_up(5)
-    card.touch_in(bank)
-    card.touch_out(kilburn)
-    expect(card.history.last.values).to include(kilburn)
-  end
-
-  it "calculates the normal fare as the minimum fare" do
+  before :each do
     card.top_up(10)
     card.touch_in(bank)
-    card.touch_out(kilburn)
+  end
+
+  it 'saves the entry station on touch_in' do
+    expect(card.journey.journey_log[0]).to eq(bank)
+  end
+
+  it "saves the exit station on touch out" do
+    card.touch_out(angel)
+    expect(card.journey.journey_log[1]).to eq(angel)
+  end
+
+
+  it "calculates the normal fare as the minimum fare" do
+    card.touch_in(bank)
+    card.touch_out(angel)
     expect(card.journey.calculate_fare).to eq(Oystercard::MINIMUM_FARE)
   end
 
+
+describe "no touch out" do
+
   it "calculates the penalty fare when no touch out" do
-    card.top_up(10)
-    card.touch_in(kilburn)
-    # card.touch_out(nil)
     expect(card.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
   end
+end
 
+describe "no touch in" do
 
-  #
-  # describe "fare" do
-  #   it "charges the minimum fare" do
-  #
-  #   end
-  # end
+  it "calculates the penalty fare when no touch in" do
+    card = Oystercard.new
+    card.top_up(10)
+    card.touch_out(bank)
+    expect(card.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
+  end
+end
+
+end
 
 
 end

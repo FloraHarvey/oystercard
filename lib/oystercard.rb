@@ -10,21 +10,25 @@ class Oystercard
     @history = []
   end
 
-  # def in_journey?
-  #   @journey ? true : false
-  # end
-
   def touch_in(station)
     fail "Insufficient balance" if @balance < MINIMUM_FARE
-    @journey = Journey.new(station)
+    @journey = Journey.new
+    journey.start_journey(station)
   end
 
   def touch_out(station)
-    @history << {journey.entry_station => station}
-    deduct(MINIMUM_FARE)
+    if (@journey == nil)
+      @journey = Journey.new
+    end
+
     journey.end_journey(station)
-    # @journey = nil
+    deduct(journey.calculate_fare)
+    @history << journey.journey_log
+    # journey.reset_journey
   end
+
+
+
 
   def top_up(amount)
     fail "Balance limit of £#{LIMIT} reached" if (@balance + amount) > LIMIT
