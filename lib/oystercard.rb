@@ -18,7 +18,7 @@ class Oystercard
     journey.start_journey(station)
     end
 
-    fail "Insufficient balance" if @balance < MINIMUM_FARE
+    fail "Insufficient balance" if @balance < Journey::MINIMUM_FARE
     create_journey
     journey.start_journey(station)
   end
@@ -63,7 +63,5 @@ class Oystercard
   end
 
   LIMIT = 90
-  MINIMUM_FARE = 1
-  PENALTY_FARE = 6
 
 end

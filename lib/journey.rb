@@ -20,7 +20,12 @@ class Journey
   end
 
   def calculate_fare
-    complete? ? Oystercard::MINIMUM_FARE : Oystercard::PENALTY_FARE
+    complete? ? MINIMUM_FARE : PENALTY_FARE
   end
+
+  private
+
+  MINIMUM_FARE = 1
+  PENALTY_FARE = 6
 
 end

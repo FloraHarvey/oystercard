@@ -30,12 +30,6 @@ describe Oystercard do
     end
   end
 
-  # describe ".in_journey?" do
-  #   it "checks if oystercard in journey" do
-  #     expect(oystercard.in_journey?).to eq false
-  #   end
-  # end
-
   describe "normal usage of card" do
     before :each do
       top_up
@@ -49,65 +43,52 @@ describe Oystercard do
       end
     end
 
-    # describe ".touch_in" do
-    #   it "changes status to in journey" do
-    #     expect(oystercard).to be_in_journey
-    #   end
-    #
-    # end
-
     describe ".touch_out" do
-      # it "changes status to not in journey" do
-      #   oystercard.touch_out(exit_station)
-      #   expect(oystercard).to_not be_in_journey
-      # end
 
       it "resets journey" do
         expect{oystercard.touch_out(angel)}.to change{oystercard.journey}.to (nil)
       end
 
       it "deducts minimum fare" do
-        expect{oystercard.touch_out(exit_station)}.to change{ oystercard.balance }.by -Oystercard::MINIMUM_FARE
+        expect{oystercard.touch_out(exit_station)}.to change{ oystercard.balance }.by -Journey::MINIMUM_FARE
       end
 
     end
   end
 
-
-
-    describe "no touch out" do
-      it "calculates the penalty fare when no touch out" do
-        oystercard.top_up(10)
-        oystercard.touch_in(bank)
-        expect{ oystercard.touch_in(angel) }.to change{ oystercard.balance }.by -Oystercard::PENALTY_FARE
-      end
-
-      it "after touching in twice it saves first entry station" do
-        oystercard.top_up(10)
-        oystercard.touch_in(bank)
-        oystercard.touch_in(angel)
-        expect(oystercard.history).to match_array([[{:entry => bank}]])
-      end
-
-
+  describe "no touch out" do
+    it "calculates the penalty fare when no touch out" do
+      oystercard.top_up(10)
+      oystercard.touch_in(bank)
+      expect{ oystercard.touch_in(angel) }.to change{ oystercard.balance }.by -Journey::PENALTY_FARE
     end
 
-    describe "no touch in" do
-
-      it "calculates the penalty fare when no touch in, after completing a previous journey" do
-        oystercard.top_up(10)
-        # oystercard.touch_in(kilburn)
-        # oystercard.touch_out(bank)
-        expect{oystercard.touch_out(angel)}.to change{ oystercard.balance}.by -(Oystercard::PENALTY_FARE)
-      end
+    it "after touching in twice it saves first entry station" do
+      oystercard.top_up(10)
+      oystercard.touch_in(bank)
+      oystercard.touch_in(angel)
+      expect(oystercard.history).to match_array([[{:entry => bank}]])
     end
 
 
-    context "balance too low" do
-      it "raises an error if balance is less than £#{Oystercard::MINIMUM_FARE} when touching in" do
-        expect{oystercard.touch_in(euston)}.to raise_error "Insufficient balance"
-      end
+  end
+
+  describe "no touch in" do
+
+    it "calculates the penalty fare when no touch in, after completing a previous journey" do
+      oystercard.top_up(10)
+      oystercard.touch_in(kilburn)
+      oystercard.touch_out(bank)
+      expect{oystercard.touch_out(angel)}.to change{ oystercard.balance}.by -(Journey::PENALTY_FARE)
     end
+  end
+
+
+  context "balance too low" do
+    it "raises an error if balance is less than £#{Journey::MINIMUM_FARE} when touching in" do
+      expect{oystercard.touch_in(euston)}.to raise_error "Insufficient balance"
+    end
+  end
 
 end
 
