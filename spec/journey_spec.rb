@@ -3,19 +3,14 @@ require 'station'
 require 'oystercard'
 
 describe Journey do
-  let(:shoreditch) {double(:station)}
-  # let(:angel) {double(:station)}
-  # let(:oyster) {double(:oystercard, :touch_in(station), :touch_out(station))}
+  let(:bank) {double(:station)}
+  let(:angel) {double(:station)}
   subject(:journey) {described_class.new}
-  bank = Station.new('Bank')
-  angel = Station.new('Angel')
-  card = Oystercard.new
-
 
   describe 'initialization' do
 
-    it "is initialized with complete = false by default " do
-      expect(journey.complete?).to eq false
+    it "journey log is empty" do
+      expect(journey.journey_log).to be_empty
     end
   end
 
@@ -25,26 +20,18 @@ describe Journey do
     expect(journey.complete?).to eq true
   end
 
-describe "touching in and out" do
-
-  before :each do
-    card.top_up(10)
-    card.touch_in(bank)
+  context 'normal use' do
+    it 'returns minimum fare' do
+      journey.start_journey(bank)
+      journey.end_journey(angel)
+      expect(journey.calculate_fare).to eq Journey::MINIMUM_FARE
+    end
   end
 
-  it 'saves the entry station on touch_in' do
-    expect(card.journey.journey_log[0][:entry]).to eq(bank)
+  context 'journey incomplete' do
+    it 'returns penalty fare' do
+      journey.start_journey(bank)
+      expect(journey.calculate_fare).to eq Journey::PENALTY_FARE
+    end
   end
-
-
-describe "no touch out" do
-
-  it "calculates the penalty fare when no touch out" do
-    expect(card.journey.calculate_fare).to eq(Journey::PENALTY_FARE)
-  end
-end
-
-end
-
-
 end
