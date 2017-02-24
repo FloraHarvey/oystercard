@@ -35,19 +35,11 @@ describe "touching in and out" do
   it 'saves the entry station on touch_in' do
     expect(card.journey.journey_log[0][:entry]).to eq(bank)
   end
-
-  it "saves the exit station on touch out" do
-    card.touch_out(angel)
-    expect(card.journey.journey_log[1][:exit]).to eq(angel)
-  end
-
-
-  it "calculates the normal fare as the minimum fare" do
-    card.touch_in(bank)
-    card.touch_out(angel)
-    expect(card.journey.calculate_fare).to eq(Oystercard::MINIMUM_FARE)
-  end
-
+  #
+  # it "saves the exit station on touch out" do
+  #   card.touch_out(angel)
+  #   expect(card.journey.journey_log[1][:exit]).to eq(angel)
+  # end
 
 describe "no touch out" do
 
@@ -56,15 +48,15 @@ describe "no touch out" do
   end
 end
 
-describe "no touch in" do
-
-  it "calculates the penalty fare when no touch in" do
-    card = Oystercard.new
-    card.top_up(10)
-    card.touch_out(bank)
-    expect(card.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
-  end
-end
+# describe "no touch in" do
+#
+#   it "calculates the penalty fare when no touch in" do
+#     card = Oystercard.new
+#     card.top_up(10)
+#     card.touch_out(bank)
+#     expect(card.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
+#   end
+# end
 
 end
 

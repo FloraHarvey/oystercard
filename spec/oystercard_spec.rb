@@ -8,6 +8,7 @@ describe Oystercard do
 
   bank = Station.new("Bank")
   angel = Station.new("Angel")
+  kilburn = Station.new("Kilburn")
 
   describe "initialization" do
     it "has a balance of 0 by default" do
@@ -35,7 +36,7 @@ describe Oystercard do
   #   end
   # end
 
-  describe "using card" do
+  describe "normal usage of card" do
     before :each do
       top_up
       oystercard.touch_in(bank)
@@ -61,7 +62,9 @@ describe Oystercard do
       #   expect(oystercard).to_not be_in_journey
       # end
 
-
+      it "resets journey" do
+        expect{oystercard.touch_out(angel)}.to change{oystercard.journey}.to (nil)
+      end
 
       it "deducts minimum fare" do
         expect{oystercard.touch_out(exit_station)}.to change{ oystercard.balance }.by -Oystercard::MINIMUM_FARE
@@ -70,29 +73,41 @@ describe Oystercard do
     end
   end
 
-    context "balance too low" do
-      it "raises an error if balance is less than £#{Oystercard::MINIMUM_FARE} when touching in" do
-        expect{oystercard.touch_in(euston)}.to raise_error "Insufficient balance"
-      end
-    end
+
 
     describe "no touch out" do
       it "calculates the penalty fare when no touch out" do
         oystercard.top_up(10)
         oystercard.touch_in(bank)
-        expect(oystercard.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
+        expect{ oystercard.touch_in(angel) }.to change{ oystercard.balance }.by -Oystercard::PENALTY_FARE
       end
+
+      it "after touching in twice it saves first entry station" do
+        oystercard.top_up(10)
+        oystercard.touch_in(bank)
+        oystercard.touch_in(angel)
+        expect(oystercard.history).to match_array([[{:entry => bank}]])
+      end
+
+
     end
 
     describe "no touch in" do
 
-      it "calculates the penalty fare when no touch in" do
+      it "calculates the penalty fare when no touch in, after completing a previous journey" do
         oystercard.top_up(10)
-        oystercard.touch_out(bank)
-        expect(oystercard.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
+        # oystercard.touch_in(kilburn)
+        # oystercard.touch_out(bank)
+        expect{oystercard.touch_out(angel)}.to change{ oystercard.balance}.by -(Oystercard::PENALTY_FARE)
       end
     end
 
+
+    context "balance too low" do
+      it "raises an error if balance is less than £#{Oystercard::MINIMUM_FARE} when touching in" do
+        expect{oystercard.touch_in(euston)}.to raise_error "Insufficient balance"
+      end
+    end
 
 end
 
