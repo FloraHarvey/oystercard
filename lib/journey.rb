@@ -8,11 +8,11 @@ class Journey
   end
 
   def start_journey(station)
-    journey_log << station
+    journey_log << {:entry => station}
   end
 
   def end_journey(station)
-    journey_log << station
+    journey_log << {:exit => station}
   end
 
   def complete?

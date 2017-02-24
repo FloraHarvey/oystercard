@@ -44,7 +44,7 @@ describe Oystercard do
     describe "history" do
       it "shows that history saves entry and exit stations" do
         oystercard.touch_out(angel)
-        expect(oystercard.history).to eq([[bank, angel]])
+        expect(oystercard.history).to eq([[{:entry => bank}, {:exit => angel}]])
       end
     end
 
@@ -87,10 +87,9 @@ describe Oystercard do
     describe "no touch in" do
 
       it "calculates the penalty fare when no touch in" do
-        card = Oystercard.new
-        card.top_up(10)
-        card.touch_out(bank)
-        expect(card.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
+        oystercard.top_up(10)
+        oystercard.touch_out(bank)
+        expect(oystercard.journey.calculate_fare).to eq(Oystercard::PENALTY_FARE)
       end
     end
 

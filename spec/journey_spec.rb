@@ -33,12 +33,12 @@ describe "touching in and out" do
   end
 
   it 'saves the entry station on touch_in' do
-    expect(card.journey.journey_log[0]).to eq(bank)
+    expect(card.journey.journey_log[0][:entry]).to eq(bank)
   end
 
   it "saves the exit station on touch out" do
     card.touch_out(angel)
-    expect(card.journey.journey_log[1]).to eq(angel)
+    expect(card.journey.journey_log[1][:exit]).to eq(angel)
   end
 
 
