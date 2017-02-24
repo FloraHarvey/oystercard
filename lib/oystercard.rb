@@ -1,7 +1,7 @@
 require_relative 'journey'
+require_relative 'station'
 
 class Oystercard
-
 
   attr_reader :balance, :history, :journey
 
@@ -12,12 +12,8 @@ class Oystercard
 
   def touch_in(station)
     if journey_exists?
-    deduct(journey.calculate_fare)
-    add_to_history
-    create_journey
-    journey.start_journey(station)
+    no_touch_out_penalty(station)
     end
-
     fail "Insufficient balance" if @balance < Journey::MINIMUM_FARE
     create_journey
     journey.start_journey(station)
@@ -27,7 +23,6 @@ class Oystercard
     if !journey_exists?
       create_journey
     end
-
     journey.end_journey(station)
     deduct(journey.calculate_fare)
     add_to_history
@@ -41,6 +36,13 @@ class Oystercard
 
   private
 
+  def no_touch_out_penalty(station)
+    deduct(journey.calculate_fare)
+    add_to_history
+    create_journey
+    journey.start_journey(station)
+  end
+
   def reset_journey
     @journey = nil
   end
@@ -48,7 +50,6 @@ class Oystercard
   def journey_exists?
     @journey != nil
   end
-
 
   def create_journey
     @journey = Journey.new

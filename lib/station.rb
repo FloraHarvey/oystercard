@@ -1,4 +1,4 @@
-require 'zones'
+require_relative 'zones'
 
 class Station
 
